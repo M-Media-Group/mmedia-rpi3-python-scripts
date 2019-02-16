@@ -11,8 +11,10 @@ Install with
 ## Use
 Get a boot-report
 `boot-checkin`
+Add it to CRON with `crontab -e` @reboot
 
 Get an InstaPy report
+`cd` into a logs directory containing followersNum.txt and followingNum.txt
 `m-insta-report`
 
 ## Config
