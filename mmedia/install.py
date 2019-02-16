@@ -10,6 +10,7 @@ def install():
 			admin_email_address = input('Admin email address: '),
 	        account = input('Email account: ') ,
 	        password = input('Email pass: ') ,
+	        from_email_address = input('From email address: '),
 	        smtp = input('SMTP server: ') or "email-smtp.eu-west-1.amazonaws.com",
 	    ),
 	    device = dict(
