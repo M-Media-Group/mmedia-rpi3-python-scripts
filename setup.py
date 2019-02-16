@@ -13,9 +13,9 @@ class PostInstallCommand(install):
     """Post-installation for installation mode."""
     def run(self):
         # PUT YOUR POST-INSTALL SCRIPT HERE or CALL A FUNCTION
-        check_call("pip3 uninstall instapy-chromedriver".split())
+        check_call("pip3 uninstall --yes instapy-chromedriver".split())
         check_call("pip3 install instapy-chromedriver==2.36.post0".split())
-        check_call("sudo apt-get install weavedconnectd".split())
+        #check_call("sudo apt-get install weavedconnectd".split())
 
         install.run(self)
 
