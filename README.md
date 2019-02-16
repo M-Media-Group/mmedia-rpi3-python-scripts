@@ -2,23 +2,21 @@
 
 Scripts I use at my company. Included is a script to check space on SD and temperature and email data to admin on a Raspberry Pi, and a script to generate and email an Excel workbook from InstaPy logs.
 
-It will automatically install InstaPy and the correct chromedriver.
-
 ## Install
 Install with
-`pip install git+https://github.com/mwargan/mmedia-rpi3-python-scripts.git`
+`pip install git+https://github.com/mwargan/mmedia-rpi3-python-scripts.git`. Just add ` -U` to update.
+
+The script will automatically install InstaPy and the correct chromedriver.
 
 ## Use
-Get a boot-report
-`boot-checkin`
-Add it to CRON with `crontab -e` @reboot
+**Get a boot-report** by typing in `boot-checkin` in a CLI.
 
-Get an InstaPy report
-`cd` into a logs directory containing followersNum.txt and followingNum.txt
-`m-insta-report`
+Add it to CRON with `crontab -e`. Use `@reboot` for automated check-ins on boot.
+
+To **get an InstaPy report**, `cd` into a logs directory containing followerNum.txt and followingNum.txt and then running `m-insta-report` in the CLI.
 
 ## Config
-On first run you'll be prompted with questions to fill in some settings:
+On the first run of any of the above you'll be prompted with questions to fill in the following settings:
 ```
 client:
   email: 

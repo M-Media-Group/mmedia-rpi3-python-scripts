@@ -3,9 +3,13 @@ import xlsxwriter
 from .. import config
 from ..memail import memail
 
+# Create a dictionary that will house the collected data
 dates_dict = dict()
+
+# Set the date format used by InstaPy logs
 date_format = "%Y-%m-%d"
 
+# Set up the global variables
 start_date = None
 last_day = None
 end_date = None
@@ -16,19 +20,28 @@ gain_followers = None
 gain_following = None
 expenditure = None
 
+# Create the dictionary dates and add the followers to the dictionary
 def addFollowers():
+
+	# Set global here so we can overwrite the global vars
 	global start_date, last_day, end_date, run_days, expenditure
+
+	# Open InstaPy log
 	with open('followerNum.txt', 'r') as file:
+		# Iterate over the rows of the log
 		for row in file:
+			# Split the row columns (space delimited)
 			a, b, c = row.split()
 			dates_dict[a] = [c]
 
+	# Set other calculated vars
 	start_date = datetime.strptime(sorted(dates_dict)[0], date_format)
 	last_day = sorted(dates_dict)[-1]
 	end_date = datetime.strptime(last_day, date_format)
 	run_days = (end_date - start_date)
 	expenditure = diff_month(end_date, start_date)*15;
 
+# Add the following to the dictionary by date
 def addFollowing():
 	with open('followingNum.txt', 'r') as file:
 		for row in file:
@@ -43,19 +56,24 @@ def addFollowing():
 				# create a new array in this slot
 				dates_dict[a] = [c]
 
+# Calculate and add the change in followers to the dictionary by date
 def calculateChangeInFollowers():
 	global best_date, worst_date, gain_followers
 	previous = None
 	for row in sorted(dates_dict):
+		# Can't subtract the 1st entry from nothing, so put 0 instead
 		if previous == None:
 			dates_dict[row].append(0)
 		else:
 			dates_dict[row].append(int(dates_dict[row][0]) - previous)
 		previous = int(dates_dict[row][0])
+
+	# Set other calculated vars
 	best_date = max(dates_dict.keys(), key=(lambda key: dates_dict[key][2]));
 	worst_date = min(dates_dict.keys(), key=(lambda key: dates_dict[key][2]));
 	gain_followers = sum(dates_dict[row][2] for row in dates_dict);
 
+# Calculate and add the change in following to the dictionary by date
 def calculateChangeInFollowing():
 	global gain_following
 	previous = None
@@ -70,6 +88,7 @@ def calculateChangeInFollowing():
 def diff_month(d1, d2):
 	return (d1.year - d2.year) * 12 + d1.month - d2.month
 
+# Create and add the data to an Excel workbook
 def addToExcel():
 	workbook = xlsxwriter.Workbook('InstagramStats.xlsx')
 
@@ -93,7 +112,6 @@ def addToExcel():
 
 	erow = 0
 	col = 0
-	# Iterate over the data and write it out row by row.
 	worksheet.write(erow, col,     "Date")
 	worksheet.write(erow, col + 1, "Followers")
 	worksheet.write(erow, col + 2, "Following")
@@ -103,6 +121,8 @@ def addToExcel():
 	worksheet.write(erow, col + 6, "Change in following to follower ratio")
 
 	erow += 1
+
+	# Iterate over the data and write it out row by row.
 	for row in sorted(dates_dict):
 		worksheet.write_datetime(erow, col, datetime.strptime(row, date_format), excel_date_format)
 		worksheet.write(erow, col + 1, int(dates_dict[row][0]))
@@ -121,7 +141,7 @@ def addToExcel():
 	worksheet.write_formula(erow, col + 5, '=average(F2:F'+str(erow)+')')
 	worksheet.write_formula(erow, col + 6, '=sum(G2:G'+str(erow)+')')
 
-	# Add table, but ovverides column names already set above :()
+	# Add table, but ovverides column names already set above :( <-- to be fixed
 	# worksheet.add_table(0, 0, erow, col + 6, {'first_column': True})
 
 	worksheet.conditional_format('D2:D'+str(len(dates_dict)+1), {'type': '3_color_scale'})
@@ -208,6 +228,7 @@ def addToExcel():
 	workbook.close()
 	print("Excel sheet created \n")
 
+# Send the email and attachment
 def sendEmail():
 	subject = "Your Instagram Analytics Data"
 	body = "Hi!\n\nIt's your Instagram Bot checking in! I've got the newest data from your Instagram account for you right here.\n\n-------"
@@ -236,8 +257,9 @@ def sendEmail():
 	body += "I've created an Excel Workbook for you with more details. It's attached in this email!"
 
 	filename = "InstagramStats.xlsx"
-	return memail.sendEmail(subject, body, config.settings['receiver_email'], filename)
+	return memail.sendEmail(subject, body, config.settings['client']['email'], filename)
 
+# Print the data to console
 def printData():
 	print('\n')
 	print("Currently followed by " + dates_dict[last_day][0])
@@ -266,6 +288,7 @@ def printData():
 
 	print('\n')
 
+# Start the functions
 addFollowers()
 addFollowing()
 calculateChangeInFollowers()
