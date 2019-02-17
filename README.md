@@ -13,13 +13,14 @@ The script will automatically install InstaPy and the correct chromedriver.
 
 Add it to CRON with `crontab -e`. Use `@reboot` for automated check-ins on boot.
 
-To **get an InstaPy report**, `cd` into a logs directory containing followerNum.txt and followingNum.txt and then running `m-insta-report` in the CLI.
+To **get an InstaPy report**, run `m-insta-report` in the CLI. The program will automatically use your default workspace path to get log data from the database.
 
 ## Config
 On the first run of any of the above you'll be prompted with questions to fill in the following settings:
 ```
 client:
   email: 
+  instapy_id: 1
 device:
   id: 
 email:
@@ -29,8 +30,9 @@ email:
   from_email_address: 
   smtp: email-smtp.eu-west-1.amazonaws.co
 ```
-By deafult only the SMTP is set to an AWS SES endpoint. Otherwise all other details must be filled in and you'll be asked for each. If you mess up, you can run `m-install` to restart.
+By deafult the SMTP is set to an AWS SES endpoint and the InstaPy ID is set to 1. Otherwise all other details must be filled in and you'll be asked for each. If you mess up, you can run `m-install` to restart.
 - Client email is the clients email - they'll recieve reports and notifications here
+- Client instapy_id is the ID in the InstaPy database (if only 1 account has ever run instapy on a given machine, its usually 1)
 - Device ID, something like Pi_009
 - Admin email address: admins email for reports and notifications
 - Account: IAM SES account (or SMTP email address)
