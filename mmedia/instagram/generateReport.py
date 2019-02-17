@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import timedelta, date, datetime
 import xlsxwriter
 from .. import config
 from ..memail import memail
@@ -8,6 +8,7 @@ from instapy.file_manager import get_workspace
 
 # Create a dictionary that will house the collected data
 dates_dict = dict()
+dates_dict2 = dict()
 
 # Set the date format used by InstaPy logs
 date_format = "%Y-%m-%d"
@@ -24,6 +25,10 @@ gain_following = None
 expenditure = None
 workspace = get_workspace()
 workspace_path = workspace["path"]
+
+def daterange(start_date, end_date):
+	for n in range(int ((end_date - start_date).days)):
+		yield start_date + timedelta(n)
 
 def create_connection(db_file):
 	""" create a database connection to the SQLite database
@@ -52,15 +57,61 @@ def select_data_by_user(conn, profile_id):
 	rows = cur.fetchall()
 	for row in rows:
 		a, b, c, d, e, f = row
-		dates_dict[str(datetime.strptime(e, "%Y-%m-%d %H:%M:%S").date())] = [b, c]
+		dates_dict[str(datetime.strptime(e, "%Y-%m-%d %H:%M:%S").date())] = {'followers': b, 'following': c, 'posts': d}
+
+	calculateChangeInFollowers()
+	calculateChangeInFollowing()
+
+def select_bot_data_by_user(conn, profile_id):
+	"""
+	Query tasks by profile_id
+	:param conn: the Connection object
+	:param profile_id:
+	:return:
+	"""
+	cur = conn.cursor()
+	cur.execute("SELECT * FROM recordActivity WHERE profile_id=?", (str(profile_id)))
+
+	rows = cur.fetchall()
+	for row in rows:
+		a, b, c, d, e, f, g = row
+		dates_dict2[datetime.strptime(g, "%Y-%m-%d %H:%M:%S")] = {'likes': b, 'comments': c, 'follows': d, 'unfollows': e, 'server_calls': f}
+
+	previous_date = "2018-01-01"
+	for date in dates_dict:
+		sum_of_likes = 0;
+		sum_of_comments = 0;
+		sum_of_follows = 0
+		sum_of_unfollows = 0
+		sum_of_server_calls = 0
+		for single_date in dates_dict2:
+			#skip if not in date range
+			if str(single_date.date()) > date or str(single_date.date()) <= previous_date:
+				continue;
+
+			sum_of_likes += dates_dict2[single_date]['likes']
+			sum_of_comments += dates_dict2[single_date]['comments']
+			sum_of_follows += dates_dict2[single_date]['follows']
+			sum_of_unfollows += dates_dict2[single_date]['unfollows']
+			sum_of_server_calls += dates_dict2[single_date]['server_calls']
+
+		dates_dict[date]['like_calls'] = sum_of_likes
+		dates_dict[date]['comment_calls'] = sum_of_comments
+		dates_dict[date]['follow_calls'] = sum_of_follows
+		dates_dict[date]['unfollow_calls'] = sum_of_unfollows
+		dates_dict[date]['server_calls'] = sum_of_server_calls
+
+		previous_date = date
 
 def main():
+	global start_date, last_day, end_date, run_days, expenditure
 	database = workspace_path+"/db/instapy.db"
 
 	# create a database connection
 	conn = create_connection(database)
 	with conn:
 		select_data_by_user(conn, config.settings['client']['instapy_id'])
+		select_bot_data_by_user(conn, config.settings['client']['instapy_id'])
 
 	# Set other calculated vars
 	start_date = datetime.strptime(sorted(dates_dict)[0], date_format)
@@ -68,41 +119,6 @@ def main():
 	end_date = datetime.strptime(last_day, date_format)
 	run_days = (end_date - start_date)
 	expenditure = diff_month(end_date, start_date)*15;
-
-# DEPRECIATED - Create the dictionary dates and add the followers to the dictionary
-def addFollowers():
-	# Set global here so we can overwrite the global vars
-	global start_date, last_day, end_date, run_days, expenditure
-
-	# Open InstaPy log
-	with open('followerNum.txt', 'r') as file:
-		# Iterate over the rows of the log
-		for row in file:
-			# Split the row columns (space delimited)
-			a, b, c = row.split()
-			dates_dict[a] = [c]
-
-	# Set other calculated vars
-	start_date = datetime.strptime(sorted(dates_dict)[0], date_format)
-	last_day = sorted(dates_dict)[-1]
-	end_date = datetime.strptime(last_day, date_format)
-	run_days = (end_date - start_date)
-	expenditure = diff_month(end_date, start_date)*15;
-
-# DEPRECIATED - Add the following to the dictionary by date
-def addFollowing():
-	with open('followingNum.txt', 'r') as file:
-		for row in file:
-			a, b, c = row.split()
-			if len(dates_dict[a]) > 1:
-				# If the record exists, skip (sometimes InstaPy makes two logs on the same day, will skip the second one)
-				continue
-			elif a in dates_dict:
-				# append the new number to the existing array at this slot
-				dates_dict[a].append(c)
-			else:
-				# create a new array in this slot
-				dates_dict[a] = [c]
 
 # Calculate and add the change in followers to the dictionary by date
 def calculateChangeInFollowers():
@@ -111,15 +127,15 @@ def calculateChangeInFollowers():
 	for row in sorted(dates_dict):
 		# Can't subtract the 1st entry from nothing, so put 0 instead
 		if previous == None:
-			dates_dict[row].append(0)
+			dates_dict[row]['change_in_followers'] = 0
 		else:
-			dates_dict[row].append(int(dates_dict[row][0]) - previous)
-		previous = int(dates_dict[row][0])
+			dates_dict[row]['change_in_followers'] = int(dates_dict[row]['followers']) - previous
+		previous = int(dates_dict[row]['followers'])
 
 	# Set other calculated vars
-	best_date = max(dates_dict.keys(), key=(lambda key: dates_dict[key][2]));
-	worst_date = min(dates_dict.keys(), key=(lambda key: dates_dict[key][2]));
-	gain_followers = sum(dates_dict[row][2] for row in dates_dict);
+	best_date = max(dates_dict.keys(), key=(lambda key: dates_dict[key]['change_in_followers']));
+	worst_date = min(dates_dict.keys(), key=(lambda key: dates_dict[key]['change_in_followers']));
+	gain_followers = sum(dates_dict[row]['change_in_followers'] for row in dates_dict);
 
 # Calculate and add the change in following to the dictionary by date
 def calculateChangeInFollowing():
@@ -127,11 +143,11 @@ def calculateChangeInFollowing():
 	previous = None
 	for row in sorted(dates_dict):
 		if previous == None:
-			dates_dict[row].append(0)
+			dates_dict[row]['change_in_following'] = 0
 		else:
-			dates_dict[row].append(int(dates_dict[row][1]) - previous)
-		previous = int(dates_dict[row][1])
-	gain_following = sum(dates_dict[row][3] for row in dates_dict);
+			dates_dict[row]['change_in_following'] = int(dates_dict[row]['following']) - previous
+		previous = int(dates_dict[row]['following'])
+	gain_following = sum(dates_dict[row]['change_in_following'] for row in dates_dict);
 
 def diff_month(d1, d2):
 	return (d1.year - d2.year) * 12 + d1.month - d2.month
@@ -161,27 +177,68 @@ def addToExcel():
 	erow = 0
 	col = 0
 	worksheet.write(erow, col,     "Date")
+
 	worksheet.write(erow, col + 1, "Followers")
 	worksheet.write(erow, col + 2, "Following")
+
 	worksheet.write(erow, col + 3, "Change in followers")
 	worksheet.write(erow, col + 4, "Change in following")
+
 	worksheet.write(erow, col + 5, "Following to follower ratio")
 	worksheet.write(erow, col + 6, "Change in following to follower ratio")
+
+	worksheet.write(erow, col + 7, "Posts")
+	worksheet.write(erow, col + 8, "Change in posts")
+
+	worksheet.write(erow, col + 9, "Bot like requests")
+	worksheet.write(erow, col + 10, "Change in bot like requests")
+
+	worksheet.write(erow, col + 11, "Bot comment requests")
+	worksheet.write(erow, col + 12, "Change in bot comment requests")
+
+	worksheet.write(erow, col + 13, "Bot follow requests")
+	worksheet.write(erow, col + 14, "Change in bot follow requests")
+
+	worksheet.write(erow, col + 15, "Bot unfollow requests")
+	worksheet.write(erow, col + 16, "Change in bot unfollow requests")
+
+	worksheet.write(erow, col + 17, "Bot total server requests")
+	worksheet.write(erow, col + 18, "Change in bot total server requests")
 
 	erow += 1
 
 	# Iterate over the data and write it out row by row.
 	for row in sorted(dates_dict):
 		worksheet.write_datetime(erow, col, datetime.strptime(row, date_format), excel_date_format)
-		worksheet.write(erow, col + 1, int(dates_dict[row][0]))
-		worksheet.write(erow, col + 2, int(dates_dict[row][1]))
-		worksheet.write(erow, col + 3, int(dates_dict[row][2]))
-		worksheet.write(erow, col + 4, int(dates_dict[row][3]))
+		worksheet.write(erow, col + 1, int(dates_dict[row]['followers']))
+		worksheet.write(erow, col + 2, int(dates_dict[row]['following']))
+		worksheet.write(erow, col + 3, int(dates_dict[row]['change_in_followers']))
+		worksheet.write(erow, col + 4, int(dates_dict[row]['change_in_following']))
 		worksheet.write_formula(erow, col + 5, '=C'+str(erow+1)+'/B'+str(erow+1))
 		if erow > 1:
 			worksheet.write_formula(erow, col + 6, '=F'+str(erow+1)+'-F'+str(erow))
+			worksheet.write_formula(erow, col + 8, '=H'+str(erow+1)+'-H'+str(erow))
+			worksheet.write_formula(erow, col + 10, '=J'+str(erow+1)+'-J'+str(erow))
+			worksheet.write_formula(erow, col + 12, '=L'+str(erow+1)+'-L'+str(erow))
+			worksheet.write_formula(erow, col + 14, '=N'+str(erow+1)+'-N'+str(erow))
+			worksheet.write_formula(erow, col + 16, '=P'+str(erow+1)+'-P'+str(erow))
+			worksheet.write_formula(erow, col + 18, '=R'+str(erow+1)+'-R'+str(erow))
+
 		else:
 			worksheet.write(erow, col + 6, 0)
+			worksheet.write(erow, col + 8, 0)
+			worksheet.write(erow, col + 10, 0)
+			worksheet.write(erow, col + 12, 0)
+			worksheet.write(erow, col + 14, 0)
+			worksheet.write(erow, col + 16, 0)
+			worksheet.write(erow, col + 18, 0)
+
+		worksheet.write(erow, col + 7, int(dates_dict[row]['posts']))
+		worksheet.write(erow, col + 9, int(dates_dict[row]['like_calls']))
+		worksheet.write(erow, col + 11, int(dates_dict[row]['comment_calls']))
+		worksheet.write(erow, col + 13, int(dates_dict[row]['follow_calls']))
+		worksheet.write(erow, col + 15, int(dates_dict[row]['unfollow_calls']))
+		worksheet.write(erow, col + 17, int(dates_dict[row]['server_calls']))
 		erow += 1
 
 	worksheet.write_formula(erow, col + 3, '=sum(D2:D'+str(erow)+')')
@@ -282,11 +339,11 @@ def sendEmail():
 	body = "Hi!\n\nIt's your Instagram Bot checking in! I've got the newest data from your Instagram account for you right here.\n\n-------"
 
 	body += '\n\n'
-	body += "Followed by " + dates_dict[last_day][0] + " people.\n"
-	body += "Following " + dates_dict[last_day][1] + " people."
+	body += "Followed by " + str(dates_dict[last_day]['followers']) + " people.\n"
+	body += "Following " + str(dates_dict[last_day]['following']) + " people."
 
 	body += '\n\n'
-	body += "Best day was " + best_date + " with " + str(dates_dict[best_date][2]) + " new followers."
+	body += "Best day was " + best_date + " with " + str(dates_dict[best_date]['change_in_followers']) + " new followers."
 
 	body += '\n\n'
 	body += "Net gain is " + str(gain_followers) + " new followers over "+ str(run_days.days) + " days.\n\n"
@@ -338,6 +395,4 @@ def printData():
 
 # Start the functions
 main()
-calculateChangeInFollowers()
-calculateChangeInFollowing()
 addToExcel()
