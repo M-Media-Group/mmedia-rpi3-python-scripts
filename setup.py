@@ -43,7 +43,7 @@ setup(
 
 	# Install the dependencies
 	install_requires=[
-		  'instapy', 'schedule', 'pyOpenSSL', 'xlsxwriter'
+		  'instapy', 'schedule', 'xlsxwriter'
 	  ],
 
 	# Trigger post install scripts
