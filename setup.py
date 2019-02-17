@@ -15,7 +15,7 @@ class PostInstallCommand(install):
 	def run(self):
 		#check_call("pip3 uninstall --yes instapy-chromedriver".split())
 		#check_call("pip3 install instapy-chromedriver==2.36.post0".split())
-		check_call("export PATH=~/.local/bin:$PATH".split())
+		#check_call("export PATH=~/.local/bin:$PATH".split())
 
 		install.run(self)
 
