@@ -2,6 +2,9 @@ from datetime import datetime
 import xlsxwriter
 from .. import config
 from ..memail import memail
+import sqlite3
+from sqlite3 import Error
+from instapy.file_manager import get_workspace
 
 # Create a dictionary that will house the collected data
 dates_dict = dict()
@@ -19,10 +22,55 @@ worst_date = None
 gain_followers = None
 gain_following = None
 expenditure = None
+workspace = get_workspace()
+workspace_path = workspace["path"]
 
-# Create the dictionary dates and add the followers to the dictionary
+def create_connection(db_file):
+	""" create a database connection to the SQLite database
+		specified by the db_file
+	:param db_file: database file
+	:return: Connection object or None
+	"""
+	try:
+		conn = sqlite3.connect(db_file)
+		return conn
+	except Error as e:
+		print(e)
+
+	return None
+
+def select_data_by_user(conn, profile_id):
+	"""
+	Query tasks by profile_id
+	:param conn: the Connection object
+	:param profile_id:
+	:return:
+	"""
+	cur = conn.cursor()
+	cur.execute("SELECT * FROM accountsProgress WHERE profile_id=?", (str(profile_id)))
+
+	rows = cur.fetchall()
+	for row in rows:
+		a, b, c, d, e, f = row
+		dates_dict[str(datetime.strptime(e, "%Y-%m-%d %H:%M:%S").date())] = [b, c]
+
+def main():
+	database = workspace_path+"/db/instapy.db"
+
+	# create a database connection
+	conn = create_connection(database)
+	with conn:
+		select_data_by_user(conn, config.settings['client']['instapy_id'])
+
+	# Set other calculated vars
+	start_date = datetime.strptime(sorted(dates_dict)[0], date_format)
+	last_day = sorted(dates_dict)[-1]
+	end_date = datetime.strptime(last_day, date_format)
+	run_days = (end_date - start_date)
+	expenditure = diff_month(end_date, start_date)*15;
+
+# DEPRECIATED - Create the dictionary dates and add the followers to the dictionary
 def addFollowers():
-
 	# Set global here so we can overwrite the global vars
 	global start_date, last_day, end_date, run_days, expenditure
 
@@ -41,7 +89,7 @@ def addFollowers():
 	run_days = (end_date - start_date)
 	expenditure = diff_month(end_date, start_date)*15;
 
-# Add the following to the dictionary by date
+# DEPRECIATED - Add the following to the dictionary by date
 def addFollowing():
 	with open('followingNum.txt', 'r') as file:
 		for row in file:
@@ -289,9 +337,7 @@ def printData():
 	print('\n')
 
 # Start the functions
-addFollowers()
-addFollowing()
+main()
 calculateChangeInFollowers()
 calculateChangeInFollowing()
 addToExcel()
-printData()

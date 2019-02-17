@@ -19,6 +19,7 @@ def install():
 		),
 		client = dict(
 			email = input('Client email: '),
+			instapy_id = input('InstaPy ID: ') or 1,
 		)
 	)
 
