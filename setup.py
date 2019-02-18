@@ -6,15 +6,16 @@ from subprocess import check_call
 
 # Project basic data variables
 __project__ = "M_Media"
-__version__ = "0.0.3"
-__description__ = "a Python module set for M Media"
+__version__ = "0.0.4"
+__description__ = "a Python module set for M Media."
 __packages__ = ["mmedia", "mmedia.bot", "mmedia.instagram", "mmedia.memail"]
 
 class PostInstallCommand(install):
 	"""Post-installation for installation mode."""
 	def run(self):
-		#check_call("pip3 uninstall --yes instapy-chromedriver".split())
-		#check_call("pip3 install instapy-chromedriver==2.36.post0".split())
+		check_call("pip3 install instapy".split())
+		check_call("pip3 uninstall --yes instapy-chromedriver".split())
+		check_call("pip3 install instapy-chromedriver==2.36.post0".split())
 		#check_call("export PATH=~/.local/bin:$PATH".split())
 
 		install.run(self)
@@ -23,7 +24,6 @@ class PostDevelopCommand(develop):
 	"""Post-installation for installation mode."""
 	def run(self):
 		# PUT YOUR POST-INSTALL SCRIPT HERE or CALL A FUNCTION
-
 		develop.run(self)
 
 setup(

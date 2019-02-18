@@ -4,14 +4,14 @@ Scripts I use at my company. Included is a script to check space on SD and tempe
 
 ## Install
 Install with
-`pip install git+https://github.com/mwargan/mmedia-rpi3-python-scripts.git`. Just add ` -U` to update.
+`pip3 install git+https://github.com/mwargan/mmedia-rpi3-python-scripts.git`. Just add ` -U` to update.
 
 The script will automatically install InstaPy and the correct chromedriver.
 
 ## Use
 **Get a boot-report** by typing in `boot-checkin` in a CLI.
 
-Add it to CRON with `crontab -e`. Use `@reboot` for automated check-ins on boot.
+Add it to systemd with `ExecStartPre=/usr/bin/python3 /home/pi/.local/bin/boot-checkin`.
 
 To **get an InstaPy report**, run `m-insta-report` in the CLI. The program will automatically use your default workspace path to get log data from the database.
 
