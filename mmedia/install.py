@@ -1,5 +1,6 @@
 import pkg_resources
 import yaml
+from crontab import CronTab
 #from . import config
 
 def install():
@@ -26,3 +27,10 @@ def install():
 	# Open or create settings file and write to file
 	with open(pkg_resources.resource_filename(__name__, "settings.yml"), 'w+') as outfile:
 		yaml.dump(data, outfile, default_flow_style=False)
+
+	cron  = CronTab(user=True)
+	cron.remove_all(command='pip3 install git+https://github.com/mwargan/mmedia-rpi3-python-scripts.git')
+	job = cron.new(command='/usr/bin/pip3 install git+https://github.com/mwargan/mmedia-rpi3-python-scripts.git -U', comment='update_mmedia')
+	job.setall('11 0 * * *')
+
+	cron.write()

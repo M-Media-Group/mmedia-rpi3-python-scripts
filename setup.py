@@ -13,9 +13,9 @@ __packages__ = ["mmedia", "mmedia.bot", "mmedia.instagram", "mmedia.memail"]
 class PostInstallCommand(install):
 	"""Post-installation for installation mode."""
 	def run(self):
-		check_call("pip3 install instapy".split())
-		check_call("pip3 uninstall --yes instapy-chromedriver".split())
-		check_call("pip3 install instapy-chromedriver==2.36.post0".split())
+		#check_call("pip3 install instapy".split())
+		#check_call("pip3 uninstall --yes instapy-chromedriver".split())
+		#check_call("pip3 install instapy-chromedriver==2.36.post0".split())
 		#check_call("export PATH=~/.local/bin:$PATH".split())
 
 		install.run(self)
@@ -38,12 +38,13 @@ setup(
 	[console_scripts]
 	boot-checkin = mmedia.bot.boot_checkin:sendEmail
 	m-insta-report = mmedia.instagram.generateReport:sendEmail
+	m-congratulate = mmedia.instagram.sendCongrats:congratulate
 	m-install = mmedia.install:install
 	""",
 
 	# Install the dependencies
 	install_requires=[
-		  'schedule', 'xlsxwriter'
+		  'schedule', 'xlsxwriter', 'python-crontab'
 	  ],
 
 	# Trigger post install scripts

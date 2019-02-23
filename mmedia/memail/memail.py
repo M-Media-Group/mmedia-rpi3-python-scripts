@@ -15,7 +15,7 @@ def sendEmail( subject, body, to="", filename=None):
 	message["Subject"] = subject
 
 	# Append a message to all emails
-	body += "\n\nRegards,\nBot\n\n\nPlease don't reply to this email, it was generated automatically.\n"
+	body += "\n\nRegards,\nBot\n\n\n-------\n\n\nPlease don't reply to this email, it was generated automatically.\n"
 
 	# Add body to email
 	message.attach(MIMEText(body, "plain"))

@@ -336,7 +336,7 @@ def addToExcel():
 # Send the email and attachment
 def sendEmail():
 	subject = "Your Instagram Analytics Data"
-	body = "Hi!\n\nIt's your Instagram Bot checking in! I've got the newest data from your Instagram account for you right here.\n\n-------"
+	body = "Hi!\n\nIt's your Instagram Bot checking in! I've got the newest data from your Instagram account for you right here, and I've also attached an Excel Workbook with more details.\n\n-------"
 
 	body += '\n\n'
 	body += "Followed by " + str(dates_dict[last_day]['followers']) + " people.\n"
@@ -356,10 +356,7 @@ def sendEmail():
 	body += "Average new followed accounts per day is " + str(gain_following/run_days.days) + ".\n\n"
 
 	body += '\n\n'
-	body += "Net gain ratio of following to follower is " + str(gain_following/gain_followers) + ". In general, the lower the ratio, the better perception other users have over the legitemacy of your account.\n\n"
-
-	body += '-------\n\n'
-	body += "I've created an Excel Workbook for you with more details. It's attached in this email!"
+	body += "Net gain ratio of following to follower is " + str(gain_following/gain_followers) + ".\n\n"
 
 	filename = "InstagramStats.xlsx"
 	return memail.sendEmail(subject, body, config.settings['client']['email'], filename)
