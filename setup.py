@@ -40,7 +40,7 @@ setup(
 	m-insta-report = mmedia.instagram.generateReport:sendEmail
 	m-congratulate = mmedia.instagram.sendCongrats:congratulate
 	m-install = mmedia.install:install
-	m-test = mmedia.testFunctioning:serviceStatus
+	m-test = mmedia.instagram.testFunctioning:serviceStatus
 	""",
 
 	# Install the dependencies
