@@ -18,6 +18,7 @@ date_format = "%Y-%m-%d"
 start_date = None
 last_day = None
 end_date = None
+previous_date = None
 run_days = None
 best_date = None
 worst_date = None
