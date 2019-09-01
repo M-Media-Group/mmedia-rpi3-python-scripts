@@ -396,7 +396,7 @@ def serviceStatus():
 	print(myCmd)
 	if 'error' in myCmd:
 		print('UH OH! Script has ERROR')
-	else if 'fail' in myCmd:
+	elif 'fail' in myCmd:
 		print('UH OH! Script has FAIL')
 	else:
 		print('All good!')
