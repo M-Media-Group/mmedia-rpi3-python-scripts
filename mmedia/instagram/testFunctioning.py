@@ -395,11 +395,11 @@ def serviceStatus():
 	myCmd = os.popen('systemctl status instapy.service').read()
 	print(myCmd)
 	if 'error' in myCmd:
-		print 'UH OH! Script has ERROR'
+		print('UH OH! Script has ERROR')
 	else if 'fail' in myCmd:
-		print 'UH OH! Script has FAIL'
+		print('UH OH! Script has FAIL')
 	else:
-		print 'All good!'
+		print('All good!')
 
 # Start the functions
 main()
