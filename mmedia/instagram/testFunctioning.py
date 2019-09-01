@@ -409,7 +409,7 @@ def serviceStatus():
 	compare_to = date(*map(int, last_day.split('-'))) + timedelta(days=1)
 	print(last_day)
 	print(today)
-	if last_day < today:
+	if compare_to < today:
 		print('NOT GOOD')
 
 # Start the functions
