@@ -6,7 +6,7 @@ from subprocess import check_call
 
 # Project basic data variables
 __project__ = "M_Media"
-__version__ = "0.0.4"
+__version__ = "0.0.6"
 __description__ = "a Python module set for M Media."
 __packages__ = ["mmedia", "mmedia.bot", "mmedia.instagram", "mmedia.memail"]
 
@@ -40,6 +40,7 @@ setup(
 	m-insta-report = mmedia.instagram.generateReport:sendEmail
 	m-congratulate = mmedia.instagram.sendCongrats:congratulate
 	m-install = mmedia.install:install
+	m-test = mmedia.testFunctioning:serviceStatus
 	""",
 
 	# Install the dependencies

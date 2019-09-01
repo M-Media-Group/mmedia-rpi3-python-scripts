@@ -27,7 +27,7 @@ email:
   admin_email_address: 
   account: 
   password: 
-  from_email_address: 
+  from_email_address: (Now uses the M Media bot default - not configurable)
   smtp: email-smtp.eu-west-1.amazonaws.co
 ```
 By deafult the SMTP is set to an AWS SES endpoint and the InstaPy ID is set to 1. Otherwise all other details must be filled in and you'll be asked for each. If you mess up, you can run `m-install` to restart.
