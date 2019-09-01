@@ -5,6 +5,7 @@ from ..memail import memail
 import sqlite3
 from sqlite3 import Error
 from instapy.file_manager import get_workspace
+import os
 
 # Create a dictionary that will house the collected data
 dates_dict = dict()
