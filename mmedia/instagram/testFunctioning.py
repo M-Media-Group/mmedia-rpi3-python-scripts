@@ -18,7 +18,6 @@ date_format = "%Y-%m-%d"
 start_date = None
 last_day = None
 end_date = None
-previous_date = None
 run_days = None
 best_date = None
 worst_date = None
@@ -406,8 +405,12 @@ def serviceStatus():
 
 # Check if there is data within last 2 days
 def serviceStatus():
-	print(previous_date)
+	today = date.today()
+	compare_to = date(*map(int, last_day.split('-'))) + timedelta(days=1)
 	print(last_day)
+	print(today)
+	if last_day < today
+		print('NOT GOOD')
 
 # Start the functions
 main()
