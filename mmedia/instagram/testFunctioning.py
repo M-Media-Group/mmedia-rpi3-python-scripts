@@ -401,6 +401,12 @@ def serviceStatus():
 		print('UH OH! Script has FAIL')
 	else:
 		print('All good!')
+		serviceStatus()
+
+# Check if there is data within last 2 days
+def serviceStatus():
+	print(previous_date)
+	print(last_day)
 
 # Start the functions
 main()
