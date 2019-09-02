@@ -32,4 +32,7 @@ def install():
 	job = cron.new(command='/usr/bin/pip3 install git+https://github.com/mwargan/mmedia-rpi3-python-scripts.git -U', comment='update_mmedia')
 	job.setall('11 0 * * *')
 
+	testjob = cron.new(command='m-test', comment='test_instagram_bot')
+	testjob.setall('10 0 * * *')
+
 	cron.write()

@@ -336,8 +336,8 @@ def addToExcel():
 
 # Send the email and attachment
 def sendEmail():
-	subject = "Your Instagram Analytics Data"
-	body = "Hi!\n\nIt's your Instagram Bot checking in! I've got the newest data from your Instagram account for you right here, and I've also attached an Excel Workbook with more details.\n\n-------"
+	subject = "Bot "+config.settings['device']['id']+" Error"
+	body = "=Instagram Bot is reporting an error.\n\n-------"
 
 	body += '\n\n'
 	body += "Followed by " + str(dates_dict[last_day]['followers']) + " people.\n"
@@ -360,7 +360,7 @@ def sendEmail():
 	body += "Net gain ratio of following to follower is " + str(gain_following/gain_followers) + ".\n\n"
 
 	filename = "InstagramStats.xlsx"
-	return memail.sendEmail(subject, body, config.settings['client']['email'], filename)
+	return memail.sendEmail(subject, body, None, filename)
 
 # Print the data to console
 def printData():
@@ -394,23 +394,25 @@ def printData():
 # Read service status
 def serviceStatus():
 	myCmd = os.popen('systemctl status instapy.service').read()
-	print(myCmd)
 	if 'error' in myCmd:
 		print('UH OH! Script has ERROR')
+		sendEmail()
 	elif 'fail' in myCmd:
 		print('UH OH! Script has FAIL')
+		sendEmail()
 	else:
 		print('All good!')
-		serviceStatus()
+		testFreshness()
 
 # Check if there is data within last 2 days
-def serviceStatus():
+def testFreshness():
 	today = date.today()
 	compare_to = date(*map(int, last_day.split('-'))) + timedelta(days=1)
 	print(last_day)
 	print(compare_to)
 	print(today)
 	if compare_to < today:
+		sendEmail()
 		print('NOT GOOD')
 
 # Start the functions
