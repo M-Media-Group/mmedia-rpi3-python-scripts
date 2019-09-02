@@ -29,7 +29,8 @@ def install():
 
 	cron  = CronTab(user=True)
 	cron.remove_all(command='pip3 install git+https://github.com/mwargan/mmedia-rpi3-python-scripts.git')
-	job = cron.new(command='/usr/bin/pip3 install git+https://github.com/mwargan/mmedia-rpi3-python-scripts.git -U', comment='update_mmedia')
+	cron.remove_all(command='pip3 install git+https://github.com/mwargan/mmedia-rpi3-python-scripts.git -U')
+	job = cron.new(command='/usr/bin/pip3 install git+https://github.com/M-Media-Group/mmedia-rpi3-python-scripts.git -U', comment='update_mmedia')
 	job.setall('11 0 * * *')
 
 	testjob = cron.new(command='m-test', comment='test_instagram_bot')

@@ -337,7 +337,7 @@ def addToExcel():
 # Send the email and attachment
 def sendEmail():
 	subject = "Bot "+config.settings['device']['id']+" Error"
-	body = "=Instagram Bot is reporting an error.\n\n-------"
+	body = "Instagram Bot is reporting an error.\n\n-------"
 
 	body += '\n\n'
 	body += "Followed by " + str(dates_dict[last_day]['followers']) + " people.\n"
