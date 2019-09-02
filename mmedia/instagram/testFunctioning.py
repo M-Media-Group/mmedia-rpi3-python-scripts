@@ -360,7 +360,7 @@ def sendEmail():
 	body += "Net gain ratio of following to follower is " + str(gain_following/gain_followers) + ".\n\n"
 
 	filename = "InstagramStats.xlsx"
-	return memail.sendEmail(subject, body, None, filename)
+	return memail.sendEmail(subject, body, filename)
 
 # Print the data to console
 def printData():
