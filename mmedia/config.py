@@ -4,6 +4,7 @@ from . import install
 
 # If exists open settings else install
 try:
-	settings = yaml.safe_load(pkg_resources.resource_string(__name__, "settings.yml"))
+    settings = yaml.safe_load(
+        pkg_resources.resource_string(__name__, "settings.yml"))
 except:
-	install.install()
+    install.install()
